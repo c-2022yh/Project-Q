@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영어단어 맞히기</title>
+    <style>
+
+        #frame
+        {
+            width: 500px;
+            height: 600px;
+            margin: 2px;
+            border: 1px solid black;
+        }
+        #frame *
+        {
+            text-align: center;
+        }
+        #frame > input
+        {
+            margin-left: 210px;
+        }
+
+        #answerList
+        {
+            list-style: none;
+        }
+        li button
+        {
+            position: relative;
+            text-align: center;
+            font-size: 15px;
+            border: 1px solid black;
+            border-radius: 20px;
+            padding: 7px;
+            background: #fff;
+            left: -20px;
+
+
+            width: 300px;
+
+            margin: 10px;
+
+        }
+        h1
+        {
+            margin-top: 180px;
+        }
+
+        
+        
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 300px;
+            margin: 0 auto;
+        }
+
+        .slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .output {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        #submitButton
+        {
+            border: none;
+            color: blue;
+            font-size: 20px;
+            padding: 10px;
+            background: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="frame">
+        <h2>파일 불러오기</h2>
+        <input type="file" id="input-csv" />
+
+        <div id="frameSlide">
+        </div>
+
+    </div>
+    
+    
+
+    
+</body>
+<script src="main.js"></script>
+</html>
