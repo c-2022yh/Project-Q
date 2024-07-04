@@ -199,8 +199,7 @@ function playQuiz()
 
     aIndex = Math.floor(Math.random()*5);
 
-    //let r = Math.random();
-    let r = 0;
+    let r = Math.random();
     if(r<0.5) //영단어가 문제
     {
 
