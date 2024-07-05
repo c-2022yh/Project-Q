@@ -102,17 +102,15 @@ function makeSlide()
 //입력완료 버튼이 눌리면 실행되는 함수
 function submitButtonFunc()
 {
+    rangeDataList = new Array();
     //지정한 범위 안에 있는 데이터만 가져옴
     for(let i in dataList)
     {
-        for(let j=minSlider.value; j<=maxSlider.value; j++)
+        if(dataList[i][0] >= minSlider.value && dataList[i][0] <= maxSlider.value)
         {
-            if(dataList[i][0] == j)
-            {
-                rangeDataList.push(new Array());
-                rangeDataList[i] = dataList[i];
-            }
+            rangeDataList.push(dataList[i]);
         }
+        
     }
     //초기 세팅
     setQuestion();
@@ -127,6 +125,8 @@ var questionNumber;
 var scoreP;
 var question;
 var answerList = [];
+var timeCount;
+var progressBar;
 
 //몇번째 문제를 푸는 지 확인할 변수
 var questionCount = 0;
@@ -143,33 +143,45 @@ var wrongQuestionList = [];
 //정답 보기 인덱스
 var aIndex = 0;
 
+let timer;
+
 //세팅 함수
 function setQuestion()
 {
     //html 태그 작성
     frameDiv.innerHTML=`
         <h2 id="questionNumber">문제1</h2>
-        <p id="scoreP" style="text-align: right; margin-right: 30px;">정답: 0/50</p>
+        <p id="scoreP" style="text-align: right; margin-right: 30px; font-size: 20px">정답: 0/50</p>
         <h3 id="question">영단어</h3>
         <ul id="answerList">
-            <li><button id="answer1" onclick="clickAnswer('0')">정답1</button></li>
-            <li><button id="answer2" onclick="clickAnswer('1')">정답2</button></li>
-            <li><button id="answer3" onclick="clickAnswer('2')">정답3</button></li>
-            <li><button id="answer4" onclick="clickAnswer('3')">정답4</button></li>
-            <li><button id="answer5" onclick="clickAnswer('4')">정답5</button></li>
+            <li><button id="answer1" class="answerButton" onclick="clickAnswer('0')">정답1</button></li>
+            <li><button id="answer2" class="answerButton" onclick="clickAnswer('1')">정답2</button></li>
+            <li><button id="answer3" class="answerButton" onclick="clickAnswer('2')">정답3</button></li>
+            <li><button id="answer4" class="answerButton" onclick="clickAnswer('3')">정답4</button></li>
+            <li><button id="answer5" class="answerButton" onclick="clickAnswer('4')">정답5</button></li>
         </ul>
+        <div id="timeCount">time</div>
+        <div id="progressBar"></div>
     `;
 
     //html 태그 연결
     questionNumber = document.getElementById('questionNumber');
     scoreP = document.getElementById('scoreP');
     question = document.getElementById('question');
+
+    answerList = new Array();
     answerList.push(document.getElementById('answer1'));
     answerList.push(document.getElementById('answer2'));
     answerList.push(document.getElementById('answer3'));
     answerList.push(document.getElementById('answer4'));
     answerList.push(document.getElementById('answer5'));
-    
+
+    timeCount = document.getElementById('timeCount');
+    progressBar = document.getElementById('progressBar');
+
+    questionCount = 0;
+    score = 0;
+
     //문제 처리 관련 배열 생성 후 1로 초기화
     //1이면 문제 출제 가능 0이면 이미 출제된 문제
     questionList = new Array(rangeDataList.length).fill(1);
@@ -180,9 +192,28 @@ function setQuestion()
 function playQuiz()
 {
     questionCount++;
+
     //html값 표기
     questionNumber.innerHTML =`문제${questionCount}`;
     scoreP.innerHTML = `정답: ${score}/${rangeDataList.length}`;
+
+    let t = 10.00;
+    
+
+    let w = 100;
+    let interval = 10;
+    timer = setInterval(function() {
+        if(w<=0)
+        {
+            clickAnswer('5');
+        }
+        t-=0.01;
+        timeCount.innerHTML = t.toFixed(2);
+
+        w -= (interval/100);
+        progressBar.style.width = w+"%";    
+    }, interval);
+
 
     //오답보기 초기화
     wrongQuestionList.fill(1);
@@ -281,20 +312,40 @@ function getWrongAnswerIndex()
 
 function clickAnswer(num)
 {
-    if(num == aIndex)
+    clearInterval(timer);
+    answerList[aIndex].style.backgroundColor = '#00ff00';
+    if(num == 5)
     {
-        score++;
+        console.log("시간 제한 오답!");
+    }
+    else if(num == aIndex)
+    {
         console.log("정답!");
-
+        score++;
     }
-    else console.log("오답!");
-
-    if(questionCount == rangeDataList.length)
+    else
     {
-        console.log("끝");
-        resultScreen();
+        console.log("오답!");
+        answerList[num].style.backgroundColor = '#e74c3c';
+        
     }
-    else playQuiz();
+
+    setTimeout(function() {
+        
+        for(let i in answerList)
+        {
+            answerList[i].style.backgroundColor = '#ffffff';
+        }
+
+        if(questionCount == rangeDataList.length)
+        {
+            console.log("끝");
+            resultScreen();
+        }
+        else playQuiz();
+    }, 500);
+
+    
 }
 
 
@@ -304,15 +355,55 @@ function resultScreen()
         <h1>문제 끝!</h1>
         <h2>정답 수 ${score}/${rangeDataList.length}</h2>
         <ul id="answerList">
-            <li><button id="b1" onclick="">다시 풀기</button></li>
-            <li><button id="b2" onclick="">범위 다시 정하기</button></li>
+            <li><button id="b1" onclick="replay()">다시 풀기</button></li>
+            <li><button id="b2" onclick="reSelectRange()">범위 다시 정하기</button></li>
 
         </ul>
     `;
 }
 
+function replay()
+{
+    setQuestion();
+    playQuiz();
+}
 
+function reSelectRange()
+{
+    let min = dataList[0][0];
+    let max = dataList[dataList.length-1][0];
+    //html 추가
+    frameDiv.innerHTML = `
+        <h2>챕터 범위 설정하기</h2>
+        <div class="slider-container">
+            <input type="range" id="minSlider" class="slider" min="${min}" max="${max}" value="0">
+            <input type="range" id="maxSlider" class="slider" min="${min}" max="${max}" value="100">
+            <div class="output">
+                <span id="minValue">${min}</span>
+                <span id="maxValue">${max}</span>
+            </div>
+            <button id="submitButton" onclick="submitButtonFunc()">입력완료</button>
+        </div>
+    `
+    minSlider = document.getElementById('minSlider');
+    maxSlider = document.getElementById('maxSlider');
+    minValue = document.getElementById('minValue');
+    maxValue = document.getElementById('maxValue');
+    
+    //최대값, 최소값이 서로 엇나가지 않도록 조정 
+    var updateValues = function() {
+        if (parseInt(minSlider.value) > parseInt(maxSlider.value)) {
+            maxSlider.value = minSlider.value;
+        }
+        minValue.textContent = minSlider.value;
+        maxValue.textContent = maxSlider.value;
+    }
 
+    //이벤트리스너 연결
+    minSlider.addEventListener('input', updateValues);
+    maxSlider.addEventListener('input', updateValues);
+
+}
 
 
 
