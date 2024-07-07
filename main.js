@@ -154,11 +154,11 @@ function setQuestion()
         <p id="scoreP" style="text-align: right; margin-right: 30px; font-size: 20px">정답: 0/50</p>
         <h3 id="question">영단어</h3>
         <ul id="answerList">
-            <li><button id="answer1" class="answerButton" onclick="clickAnswer('0')">정답1</button></li>
-            <li><button id="answer2" class="answerButton" onclick="clickAnswer('1')">정답2</button></li>
-            <li><button id="answer3" class="answerButton" onclick="clickAnswer('2')">정답3</button></li>
-            <li><button id="answer4" class="answerButton" onclick="clickAnswer('3')">정답4</button></li>
-            <li><button id="answer5" class="answerButton" onclick="clickAnswer('4')">정답5</button></li>
+            <li><button id="answer1" class="answerButton">정답1</button></li>
+            <li><button id="answer2" class="answerButton">정답2</button></li>
+            <li><button id="answer3" class="answerButton">정답3</button></li>
+            <li><button id="answer4" class="answerButton">정답4</button></li>
+            <li><button id="answer5" class="answerButton">정답5</button></li>
         </ul>
         <div id="timeCount">time</div>
         <div id="progressBar"></div>
@@ -175,6 +175,8 @@ function setQuestion()
     answerList.push(document.getElementById('answer3'));
     answerList.push(document.getElementById('answer4'));
     answerList.push(document.getElementById('answer5'));
+    
+    
 
     timeCount = document.getElementById('timeCount');
     progressBar = document.getElementById('progressBar');
@@ -191,6 +193,11 @@ function setQuestion()
 
 function playQuiz()
 {
+
+    for(let i in answerList)
+    {
+        answerList[i].addEventListener("click",clickAnswer,false);
+    }
     questionCount++;
 
     //html값 표기
@@ -205,7 +212,7 @@ function playQuiz()
     timer = setInterval(function() {
         if(w<=0)
         {
-            clickAnswer('5');
+            clickAnswer('0');
         }
         t-=0.01;
         timeCount.innerHTML = t.toFixed(2);
@@ -310,9 +317,17 @@ function getWrongAnswerIndex()
     }
 }
 
-function clickAnswer(num)
+function clickAnswer(e)
 {
+    let num = 5;
+    if(e != 0)
+    {
+        let str = e.target.id;
+        num = parseInt(str.charAt(str.length - 1), 10);
+        num-=1;
+    }
     clearInterval(timer);
+
     answerList[aIndex].style.backgroundColor = '#00ff00';
     if(num == 5)
     {
@@ -327,7 +342,11 @@ function clickAnswer(num)
     {
         console.log("오답!");
         answerList[num].style.backgroundColor = '#e74c3c';
-        
+    }
+
+    for(let i in answerList)
+    {
+        answerList[i].removeEventListener("click",clickAnswer);
     }
 
     setTimeout(function() {
@@ -345,7 +364,11 @@ function clickAnswer(num)
         else playQuiz();
     }, 500);
 
-    
+}
+
+function testE(e)
+{
+    console.log(e.target.id);
 }
 
 
